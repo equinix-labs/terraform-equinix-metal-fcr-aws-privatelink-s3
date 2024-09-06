@@ -1,0 +1,52 @@
+## template: jinja
+#cloud-config
+package_update: true
+package_upgrade: true
+package_reboot_if_required: true
+write_files:
+- path: /etc/network/interfaces
+  append: true
+  content: |
+    auto bond0.${metal_vlan_id}
+    iface bond0.${metal_vlan_id} inet static
+        pre-up sleep 5
+        address ${metal_router_ip}
+        netmask ${metal_router_netmask}
+        vlan-raw-device bond0
+    auto lo1
+- path: /etc/frr/frr.conf
+  permissions: '0644'
+  content: |
+    frr defaults traditional
+    log syslog informational
+    no ipv4 forwarding
+    no ipv6 forwarding
+    service integrated-vtysh-config
+    !
+    router bgp ${metal_router_asn}
+     bgp router-id ${metal_router_ip}
+     neighbor FCR peer-group
+     neighbor FCR remote-as ${fabric_router_asn}
+     neighbor FCR update-source ${metal_router_ip}
+     neighbor ${fabric_router_ip} peer-group FCR
+     !
+     address-family ipv4 unicast
+      redistribute connected
+      neighbor FCR soft-reconfiguration inbound
+      neighbor FCR route-map IMPORT in
+      neighbor FCR route-map EXPORT out
+     exit-address-family
+    !
+    route-map EXPORT permit 1
+    !
+    route-map IMPORT permit 1
+    !
+    line vty
+    !
+packages:
+  - frr
+  - awscli
+runcmd:
+- systemctl restart networking
+- sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
+- systemctl restart frr

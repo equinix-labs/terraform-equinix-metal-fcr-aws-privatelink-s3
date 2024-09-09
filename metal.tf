@@ -1,3 +1,5 @@
+# --- EQUINIX METAL ---
+
 # allocate metro vlans for the project 
 resource "equinix_metal_vlan" "this" {
   description = "${local.name_prefix} metro VLAN"

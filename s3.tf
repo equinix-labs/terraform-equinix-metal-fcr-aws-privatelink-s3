@@ -1,3 +1,5 @@
+# --- AWS S3 ---
+
 resource "aws_s3_bucket" "this" {
   bucket = local.name_prefix
 }
@@ -20,7 +22,7 @@ resource "aws_s3_bucket_acl" "this" {
 resource "aws_s3_bucket_versioning" "this" {
   bucket = aws_s3_bucket.this.id
   versioning_configuration {
-    status = "Disabled"
+    status = "Enabled"
   }
 }
 

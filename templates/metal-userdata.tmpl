@@ -45,8 +45,8 @@ write_files:
     !
 packages:
   - frr
-  - awscli
 runcmd:
 - systemctl restart networking
 - sed -i 's/bgpd=no/bgpd=yes/' /etc/frr/daemons
 - systemctl restart frr
+- snap install aws-cli --classic

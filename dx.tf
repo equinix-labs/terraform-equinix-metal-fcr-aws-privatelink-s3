@@ -1,21 +1,5 @@
 # --- AWS DIRECT CONNECT ---
 
-locals {
-  aws_dx_connection_id = [
-    for z in data.equinix_fabric_connection.aws.z_side : [
-      for ap in z.access_point : ap.provider_connection_id
-    ][0]
-  ][0]
-
-  aws_dx_vif_vlan = [
-    for z in data.equinix_fabric_connection.aws.z_side : [
-      for ap in z.access_point : [
-        for lp in ap.link_protocol : lp.vlan_tag
-      ][0]
-    ][0]
-  ][0]
-}
-
 resource "aws_dx_connection_confirmation" "this" {
   connection_id = local.aws_dx_connection_id
 }
@@ -59,5 +43,3 @@ resource "aws_dx_gateway_association" "this" {
   dx_gateway_id         = aws_dx_gateway.this.id
   associated_gateway_id = aws_vpn_gateway.this.id
 }
-
-

@@ -7,21 +7,6 @@ resource "equinix_metal_vlan" "this" {
   project_id  = var.metal_project_id
 }
 
-# order shared connection
-resource "equinix_metal_connection" "this" {
-  name          = local.name_prefix
-  project_id    = var.metal_project_id
-  metro         = var.metro_code
-  redundancy    = "primary"
-  speed         = format("%dMbps", var.fabric_metal_connection_speed)
-  type          = "shared_port_vlan"
-  contact_email = var.notifications_emails[0]
-
-  vlans = [
-    equinix_metal_vlan.this.vxlan
-  ]
-}
-
 # create a temporary SSH key pairs for the project
 module "ssh" {
   source     = "./modules/metal_ssh/"
@@ -45,6 +30,8 @@ resource "equinix_metal_device" "this" {
     fabric_router_ip     = local.fabric_router_ip,
     fabric_router_asn    = equinix_fabric_cloud_router.this.equinix_asn
   })
+
+  depends_on = [module.ssh]
 }
 
 # put metal nodes in hybrid bonded mode and attach metro vlan to the nodes
@@ -54,4 +41,19 @@ resource "equinix_metal_port" "port" {
   bonded     = true
   vxlan_ids  = [equinix_metal_vlan.this.vxlan]
   depends_on = [equinix_metal_device.this]
+}
+
+# order shared connection
+resource "equinix_metal_connection" "this" {
+  name          = local.name_prefix
+  project_id    = var.metal_project_id
+  metro         = var.metro_code
+  redundancy    = "primary"
+  speed         = format("%dMbps", var.fabric_metal_connection_speed)
+  type          = "shared_port_vlan"
+  contact_email = var.notifications_emails[0]
+
+  vlans = [
+    equinix_metal_vlan.this.vxlan
+  ]
 }

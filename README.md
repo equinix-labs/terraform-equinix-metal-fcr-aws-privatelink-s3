@@ -1,5 +1,8 @@
 # Terraform Demo: Private Interconnection between Equinix Metal and AWS S3 using Fabric Cloud Router (FCR) and AWS PrivateLink
 
+> [!WARNING]
+> With the upcoming EoL of Equinix Metal on June 30, 2026, this repo is being archived on February 28, 2026.
+
 ## Overview
 
 This demo showcases how to use Terraform to set up a private interconnection between Equinix Metal and AWS S3. The architecture involves a Metal device, a Fabric Cloud Router (FCR), two Fabric interconnections, and several AWS components including Direct Connect, a VPC with a subnet, PrivateLink, and an S3 bucket.
